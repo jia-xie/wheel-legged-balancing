@@ -1,0 +1,18 @@
+# Build Files Ignore
+*.o
+*.d
+*.crf
+
+# Directory Ignore (Drivers can be generated from STMCubeMX)
+.vscode/*
+MDK-ARM/*
+
+# Other File in Source Folder
+.mxproject
+Makefile
+startup_stm32f407xx.s
+STM32F407IGHx_FLASH.ld
+
+# Include the MDK file (for compiling and the vscode reference)
+!MDK-ARM/Robomaster_Legged_Balance.uvprojx
+!MDK-ARM/startup_stm32f407xx.s
