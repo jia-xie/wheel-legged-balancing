@@ -1,0 +1,3 @@
+[submodule "Hardware-Library"]
+	path = Hardware-Library
+	url = https://github.com/jia-xie/control-hardware-library.git
