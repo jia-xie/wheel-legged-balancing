@@ -42,8 +42,8 @@ void Toe_Disable()
 
 void Toe_VelCtrl(int32_t left, int32_t right)
 {
-    float torq_l = PID(&toe_vel_left_pid, left - TOE_LEFT_DIR * toe[0].velocity);
-    float torq_r = PID(&toe_vel_right_pid, right - TOE_RIGHT_DIR *  toe[1].velocity);
+    float torq_l = PID_Output(&toe_vel_left_pid, left - TOE_LEFT_DIR * toe[0].velocity);
+    float torq_r = PID_Output(&toe_vel_right_pid, right - TOE_RIGHT_DIR *  toe[1].velocity);
     Toe_TorqCtrl(torq_l, torq_r);
 }
 

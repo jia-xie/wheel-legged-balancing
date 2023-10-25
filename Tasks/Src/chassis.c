@@ -93,9 +93,9 @@ void Chassis_Process(Remote_t remote)
 void Chassis_ToeControl()
 {
     #ifdef NORMAL
-    float toe_vel_output = PID(&chassis_toe_vel_pid, chassis.current_vel - chassis.target_vel);
-    float toe_ang_output = -PID(&chassis_toe_angle_pid, balance_ang - chassis.current_pitch);
-    float toe_turn_output = PID(&chassis_toe_turn_pid, chassis.target_yaw - chassis.current_yaw);
+    float toe_vel_output = PID_Output(&chassis_toe_vel_pid, chassis.current_vel - chassis.target_vel);
+    float toe_ang_output = -PID_Output(&chassis_toe_angle_pid, balance_ang - chassis.current_pitch);
+    float toe_turn_output = PID_Output(&chassis_toe_turn_pid, chassis.target_yaw - chassis.current_yaw);
     float toe_left_target_vel = toe_ang_output + toe_vel_output - toe_turn_output;
     float toe_right_target_vel = toe_ang_output + toe_vel_output + toe_turn_output;
     __MAX_LIMIT(toe_left_target_vel, -14000, 14000);
@@ -109,7 +109,7 @@ void Chassis_ToeControl()
         PID_Reset(&chassis_toe_vel_pid);
     }
     #else 
-    float toe_ang_output = -PID(&chassis_toe_angle_pid, balance_ang - imu_angle_deg[1]);
+    float toe_ang_output = -PID_Output(&chassis_toe_angle_pid, balance_ang - imu_angle_deg[1]);
     float toe_target_vel = toe_ang_output;
     __MAX_LIMIT(toe_target_vel, -14000, 14000);
     if (g_remote.controller.left_switch == MID) 
@@ -127,7 +127,7 @@ void Chassis_ThighControl()
     if (g_remote.controller.right_switch == UP)
     {
         #ifndef NORMAL
-        chassis.target_leg_ang = chassis.target_leg_ang * 0.95f + 0.05f * (PI/2 + PID(&chassis_thigh_vel_pid, chassis.target_vel - chassis.current_vel));
+        chassis.target_leg_ang = chassis.target_leg_ang * 0.95f + 0.05f * (PI/2 + PID_Output(&chassis_thigh_vel_pid, chassis.target_vel - chassis.current_vel));
         #endif
     }
     __MAX_LIMIT(chassis.target_leg_ang, (90.0f - THIGH_ANG_RANGE) * DEG_TO_RAD, (90.0f + THIGH_ANG_RANGE) * DEG_TO_RAD);
