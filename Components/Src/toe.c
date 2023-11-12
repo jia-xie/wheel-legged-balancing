@@ -23,7 +23,7 @@ void Toe_Enable()
     if (!toe[0].enabled) 
         MF_Motor_EnableMotor(&hcan1, LEFT_TOE_ID);
     if (!toe[1].enabled) 
-        MF_Motor_EnableMotor(&hcan1, RIGHT_TOE_ID);
+        MF_Motor_EnableMotor(&hcan2, RIGHT_TOE_ID);
 }
 
 void Toe_Disable()
@@ -33,7 +33,7 @@ void Toe_Disable()
     PID_Reset(&toe_vel_left_pid);
  
 
-    MF_Motor_DisableMotor(&hcan1, RIGHT_TOE_ID);
+    MF_Motor_DisableMotor(&hcan2, RIGHT_TOE_ID);
     PID_Reset(&toe_vel_right_pid);
 
 
@@ -52,5 +52,5 @@ void Toe_TorqCtrl(int32_t left, int32_t right)
     __MAX_LIMIT(left, -2000, 2000);
     __MAX_LIMIT(right, -2000, 2000);
     MF_Motor_TorqueCtrl(&hcan1, LEFT_TOE_ID, TOE_LEFT_DIR * left);
-    MF_Motor_TorqueCtrl(&hcan1, RIGHT_TOE_ID, TOE_RIGHT_DIR * right);
+    MF_Motor_TorqueCtrl(&hcan2, RIGHT_TOE_ID, TOE_RIGHT_DIR * right);
 }

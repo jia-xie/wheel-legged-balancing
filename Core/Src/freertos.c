@@ -186,6 +186,7 @@ void GlobalInit(void const * argument)
 
 #ifdef CAN_ENABLED
   CAN_BSP_Init(&hcan1);
+  CAN_BSP_Init(&hcan2);
 #endif
 
 #ifdef PWM_ENABLED

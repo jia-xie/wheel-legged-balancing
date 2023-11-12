@@ -49,6 +49,7 @@
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN PFP */
 void IT_DecodeCAN1(void);
+void IT_DecodeCAN2(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -58,6 +59,7 @@ void IT_DecodeCAN1(void);
 
 /* External variables --------------------------------------------------------*/
 extern CAN_HandleTypeDef hcan1;
+extern CAN_HandleTypeDef hcan2;
 extern DMA_HandleTypeDef hdma_usart3_rx;
 extern TIM_HandleTypeDef htim2;
 
@@ -262,6 +264,20 @@ void TIM2_IRQHandler(void)
   /* USER CODE END TIM2_IRQn 1 */
 }
 
+/**
+  * @brief This function handles CAN2 RX0 interrupts.
+  */
+void CAN2_RX0_IRQHandler(void)
+{
+  /* USER CODE BEGIN CAN2_RX0_IRQn 0 */
+  IT_DecodeCAN2();
+  /* USER CODE END CAN2_RX0_IRQn 0 */
+  HAL_CAN_IRQHandler(&hcan2);
+  /* USER CODE BEGIN CAN2_RX0_IRQn 1 */
+
+  /* USER CODE END CAN2_RX0_IRQn 1 */
+}
+
 /* USER CODE BEGIN 1 */
 void IT_DecodeCAN1()
 {
@@ -293,5 +309,20 @@ void IT_DecodeCAN1()
   }
   }
 }
+void IT_DecodeCAN2()
+{
+    
+  CAN_RxHeaderTypeDef rx_header;
+  uint8_t data_temp[8];
+  if (HAL_CAN_GetRxMessage(&hcan2, CAN_FilterFIFO0, &rx_header, data_temp) == HAL_OK)
+  {
+  switch (rx_header.StdId)
+  {
 
+  case SINGLE_MOTOR_CTRL_STD + RIGHT_TOE_ID:
+    MF_Motor_Decode(data_temp, &toe[1]);
+    break;
+  }
+  }
+}
 /* USER CODE END 1 */
