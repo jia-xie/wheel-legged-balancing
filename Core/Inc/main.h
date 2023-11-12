@@ -31,7 +31,7 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "struct_typedef.h"
+//#include "struct_typedef.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
