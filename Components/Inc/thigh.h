@@ -8,6 +8,12 @@
 #include "pid.h"
 #include "user_math.h"
 
+typedef struct
+{
+    float phi1;
+    float phi4;
+} Thigh_Info_t
+
 extern DM4310_Info_t thigh[4];
 
 extern void Thigh_Init(void);

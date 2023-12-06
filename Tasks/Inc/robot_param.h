@@ -12,7 +12,7 @@
 /* Motor */
 #define LEFT_FRONT_OFFSET -.64f
 #define LEFT_REAR_OFFSET -2.11f
-#define RIGHT_FRONT_OFFSET -1.57f
+#define RIGHT_FRONT_OFFSET -3.70f
 #define RIGHT_REAR_OFFSET 0.45f
 #define PI 3.14159f
 
@@ -29,7 +29,7 @@
 #define THIGH_ANG_RANGE 45.0f //degree
 
 /* Control */
-#define INIT_CHASSIS_HEIGHT 0.144f
+#define INIT_CHASSIS_HEIGHT 0.16//0.144f
 #define INIT_CHASSIS_ANGLE 90.0f
 
 #endif

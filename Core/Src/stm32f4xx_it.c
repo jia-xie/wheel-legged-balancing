@@ -300,12 +300,10 @@ void IT_DecodeCAN1()
   case 0x07:
     DM4310_DecodeCAN(data_temp, &thigh[3]);
     break;
-  case SINGLE_MOTOR_CTRL_STD + LEFT_TOE_ID:
-    MF_Motor_Decode(data_temp, &toe[0]);
-    break;
-  case SINGLE_MOTOR_CTRL_STD + RIGHT_TOE_ID:
-    MF_Motor_Decode(data_temp, &toe[1]);
-    break;
+  
+//  case SINGLE_MOTOR_CTRL_STD + RIGHT_TOE_ID:
+//    MF_Motor_Decode(data_temp, &toe[1]);
+//    break;
   }
   }
 }
@@ -316,13 +314,15 @@ void IT_DecodeCAN2()
   uint8_t data_temp[8];
   if (HAL_CAN_GetRxMessage(&hcan2, CAN_FilterFIFO0, &rx_header, data_temp) == HAL_OK)
   {
-  switch (rx_header.StdId)
-  {
-
-  case SINGLE_MOTOR_CTRL_STD + RIGHT_TOE_ID:
-    MF_Motor_Decode(data_temp, &toe[1]);
-    break;
-  }
+      switch (rx_header.StdId)
+      {
+        case SINGLE_MOTOR_CTRL_STD + LEFT_TOE_ID:
+            MF_Motor_Decode(data_temp, &toe[0]);
+            break;
+        case SINGLE_MOTOR_CTRL_STD + RIGHT_TOE_ID:
+            MF_Motor_Decode(data_temp, &toe[1]);
+            break;
+      }
   }
 }
 /* USER CODE END 1 */
