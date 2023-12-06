@@ -34,6 +34,8 @@
 #include "bsp_can.h"
 #include "imu_task.h"
 #include "toe.h"
+#include "bsp_serial.h"
+#include "chassis.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -58,7 +60,7 @@ osThreadId imu_TaskHandle;
 osThreadId global_init_tasHandle;
 osThreadId chassis_taskHandle;
 osThreadId can1_txHandle;
-osThreadId can_rxHandle;
+osThreadId debug_taskHandle;
 osMessageQId can1_tx_queueHandle;
 osMessageQId can1_rx_queueHandle;
 
@@ -70,7 +72,7 @@ void Global_Init(void);
 void GlobalInit(void const * argument);
 extern void Chassis_Ctrl(void const * argument);
 extern void CAN_BSP_CAN1Tx(void const * argument);
-void CAN1_Rx(void const * argument);
+void Debug_Task(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -147,16 +149,16 @@ void MX_FREERTOS_Init(void) {
   global_init_tasHandle = osThreadCreate(osThread(global_init_tas), NULL);
 
   /* definition and creation of chassis_task */
-  osThreadDef(chassis_task, Chassis_Ctrl, osPriorityIdle, 0, 128);
+  osThreadDef(chassis_task, Chassis_Ctrl, osPriorityNormal, 0, 128);
   chassis_taskHandle = osThreadCreate(osThread(chassis_task), NULL);
 
   /* definition and creation of can1_tx */
   osThreadDef(can1_tx, CAN_BSP_CAN1Tx, osPriorityHigh, 0, 128);
   can1_txHandle = osThreadCreate(osThread(can1_tx), NULL);
 
-  /* definition and creation of can_rx */
-  osThreadDef(can_rx, CAN1_Rx, osPriorityIdle, 0, 128);
-  can_rxHandle = osThreadCreate(osThread(can_rx), NULL);
+  /* definition and creation of debug_task */
+  osThreadDef(debug_task, Debug_Task, osPriorityNormal, 0, 128);
+  debug_taskHandle = osThreadCreate(osThread(debug_task), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
 
@@ -205,18 +207,26 @@ void GlobalInit(void const * argument)
   /* USER CODE END GlobalInit */
 }
 
-/* USER CODE BEGIN Header_CAN1_Rx */
+/* USER CODE BEGIN Header_Debug_Task */
 /**
- * @brief Function implementing the can_rx thread.
+ * @brief Function implementing the debug_task thread.
  * @param argument: Not used
  * @retval None
  */
-/* USER CODE END Header_CAN1_Rx */
-void CAN1_Rx(void const * argument)
+/* USER CODE END Header_Debug_Task */
+__weak void Debug_Task(void const * argument)
 {
-  /* USER CODE BEGIN CAN1_Rx */
-  vTaskDelete(NULL);
-  /* USER CODE END CAN1_Rx */
+  /* USER CODE BEGIN Debug_Task */
+  /* Infinite loop */
+  portTickType xLastWakeTime;
+  xLastWakeTime = xTaskGetTickCount();
+  const TickType_t TimeIncrement = pdMS_TO_TICKS(20);
+  while (1)
+  {
+    printf("pitch=%f\r\n",g_chassis.current_pitch);
+    vTaskDelayUntil(&xLastWakeTime, TimeIncrement);
+  }
+  /* USER CODE END Debug_Task */
 }
 
 /* Private application code --------------------------------------------------*/

@@ -46,7 +46,7 @@ typedef struct
 } Chassis_t;
 
 extern float speed;
-extern Chassis_t chassis;
+extern Chassis_t g_chassis;
 extern float kp;
 extern float kd;
 extern float balance_ang;
