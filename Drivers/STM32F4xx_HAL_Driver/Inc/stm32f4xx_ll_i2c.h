@@ -186,8 +186,8 @@ typedef struct
 /** @defgroup I2C_LL_EC_DUTYCYCLE Fast Mode Duty Cycle
   * @{
   */
-#define LL_I2C_DUTYCYCLE_2                  0x00000000U             /*!< I2C fast mode Tlow/Thigh = 2        */
-#define LL_I2C_DUTYCYCLE_16_9               I2C_CCR_DUTY            /*!< I2C fast mode Tlow/Thigh = 16/9     */
+#define LL_I2C_DUTYCYCLE_2                  0x00000000U             /*!< I2C fast mode Tlow/Leg = 2        */
+#define LL_I2C_DUTYCYCLE_16_9               I2C_CCR_DUTY            /*!< I2C fast mode Tlow/Leg = 16/9     */
 /**
   * @}
   */
