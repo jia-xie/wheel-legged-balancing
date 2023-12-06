@@ -10,21 +10,21 @@ PID_t chassis_toe_angle_pid;
 #ifdef NORMAL
 PID_t chassis_toe_vel_pid;
 #else
-PID_t chassis_thigh_vel_pid;
+PID_t chassis_leg_vel_pid;
 #endif
-PID_t chassis_thigh_angle_pid;
+PID_t chassis_leg_angle_pid;
 void Chassis_Init()
 {
     Toe_Init();
-    Thigh_Init();
+    Leg_Init();
     PID_Init(&chassis_toe_turn_pid, 40.0f, 0.0f, 300.0f, 14000.0f, 14000.0f, 0.0f);
-    PID_Init(&chassis_toe_angle_pid, 120.0f, 0.0f, 6000.0f, 14000.0f, 14000.0f, 0.0f);
+    PID_Init(&chassis_toe_angle_pid, 120.0f, 0.0f, 3000.0f, 14000.0f, 14000.0f, 0.0f);
     #ifdef NORMAL
-    PID_Init(&chassis_toe_vel_pid, 1500.0f, .0f, 1000.0f, 14000.0f, 14000.f, 0.0f);
+    PID_Init(&chassis_toe_vel_pid, 1500.0f, .0f, 400.0f, 14000.0f, 14000.f, 0.0f);
     #else
-    PID_Init(&chassis_thigh_vel_pid, 0.01f, .0f, 0.0f, 30.0f, 30.f, 0.0f);
+    PID_Init(&chassis_leg_vel_pid, 0.01f, .0f, 0.0f, 30.0f, 30.f, 0.0f);
     #endif
-    PID_Init(&chassis_thigh_angle_pid, .003f, 0.000000055f, .01f, 30.0f, 30.0f, 0.0f);
+    PID_Init(&chassis_leg_angle_pid, .003f, 0.000000055f, .01f, 30.0f, 30.0f, 0.0f);
     g_chassis.turn_count = 0;
     
     g_chassis.last_raw_yaw = g_imu.deg.yaw;
@@ -122,27 +122,27 @@ void Chassis_ToeControl()
     #endif
 }
 
-void Chassis_ThighControl()
+void Chassis_LegControl()
 {
     if (g_remote.controller.right_switch == UP)
     {
         #ifndef NORMAL
-        chassis.target_leg_ang = chassis.target_leg_ang * 0.95f + 0.05f * (PI/2 + PID_Output(&chassis_thigh_vel_pid, chassis.target_vel - chassis.current_vel));
+        chassis.target_leg_ang = chassis.target_leg_ang * 0.95f + 0.05f * (PI/2 + PID_Output(&chassis_leg_vel_pid, chassis.target_vel - chassis.current_vel));
         #endif
     }
     __MAX_LIMIT(g_chassis.target_leg_ang, (90.0f - THIGH_ANG_RANGE) * DEG_TO_RAD, (90.0f + THIGH_ANG_RANGE) * DEG_TO_RAD);
-    Thigh_Ctrl(g_chassis.target_height, g_chassis.target_leg_ang);
+    Leg_Ctrl(g_chassis.target_height, g_chassis.target_leg_ang);
 }
 
 void Chassis_Enable()
 {
-    Thigh_Enable();
+    Leg_Enable();
     Toe_Enable();
 }
 
 void Chassis_Disable()
 {
-    Thigh_Disable();
+    Leg_Disable();
     Toe_Disable();
 }
 
@@ -151,7 +151,7 @@ void Chassis_Ctrl(void const *argument)
 {
     portTickType xLastWakeTime;
     xLastWakeTime = xTaskGetTickCount();
-    const TickType_t TimeIncrement = pdMS_TO_TICKS(1);
+    const TickType_t TimeIncrement = pdMS_TO_TICKS(4);
     Chassis_Init();
     while (1)
     {
@@ -159,7 +159,7 @@ void Chassis_Ctrl(void const *argument)
         if (g_chassis.enabled) 
         {
             Chassis_Enable();
-            Chassis_ThighControl();
+            Chassis_LegControl();
             Chassis_ToeControl();
         }
         else 

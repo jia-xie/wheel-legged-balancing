@@ -40,13 +40,16 @@ IMU_t g_imu;
 void IMU_Task(void const *pvParameters)
 {
     IMU_Task_Init(&g_imu);
-
+    portTickType xLastWakeTime;
+    xLastWakeTime = xTaskGetTickCount();
+    const TickType_t TimeIncrement = pdMS_TO_TICKS(1);
     while (1)
     {
         /* Wait for SPI DMA @ref HAL_GPIO_EXTI_Callback() */
         while (ulTaskNotifyTake(pdTRUE, portMAX_DELAY) != pdPASS);
 
         IMU_Task_Process(&g_imu);
+        vTaskDelayUntil(&xLastWakeTime, TimeIncrement);
     }
 }
 

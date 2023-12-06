@@ -149,7 +149,7 @@ void MX_FREERTOS_Init(void) {
   global_init_tasHandle = osThreadCreate(osThread(global_init_tas), NULL);
 
   /* definition and creation of chassis_task */
-  osThreadDef(chassis_task, Chassis_Ctrl, osPriorityNormal, 0, 128);
+  osThreadDef(chassis_task, Chassis_Ctrl, osPriorityNormal, 0, 512);
   chassis_taskHandle = osThreadCreate(osThread(chassis_task), NULL);
 
   /* definition and creation of can1_tx */
@@ -157,12 +157,12 @@ void MX_FREERTOS_Init(void) {
   can1_txHandle = osThreadCreate(osThread(can1_tx), NULL);
 
   /* definition and creation of debug_task */
-  osThreadDef(debug_task, Debug_Task, osPriorityNormal, 0, 128);
+  osThreadDef(debug_task, Debug_Task, osPriorityLow, 0, 128);
   debug_taskHandle = osThreadCreate(osThread(debug_task), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
 
-  osThreadDef(imu_task, IMU_Task, osPriorityHigh, 0, 512);
+  osThreadDef(imu_task, IMU_Task, osPriorityHigh, 0, 256);
   imu_TaskHandle = osThreadCreate(osThread(imu_task), NULL);
   /* USER CODE END RTOS_THREADS */
 
@@ -220,7 +220,7 @@ __weak void Debug_Task(void const * argument)
   /* Infinite loop */
   portTickType xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();
-  const TickType_t TimeIncrement = pdMS_TO_TICKS(20);
+  const TickType_t TimeIncrement = pdMS_TO_TICKS(10);
   while (1)
   {
     printf("pitch=%f\r\n",g_chassis.current_pitch);

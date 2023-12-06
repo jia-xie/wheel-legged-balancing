@@ -14,8 +14,8 @@ void Toe_Init()
 {
     MF_Motor_DisableMotor(&hcan2, LEFT_TOE_ID);
     MF_Motor_DisableMotor(&hcan2, RIGHT_TOE_ID);
-    PID_Init(&toe_vel_left_pid, 0.30f, 0.01f, 0.02f, 2000.0f, 600.0f, 0.0f);
-    PID_Init(&toe_vel_right_pid, 0.30f, 0.01f, 0.02f, 2000.0f, 600.0f, 0.0f);
+    PID_Init(&toe_vel_left_pid, 0.30f, 0.01f, 0.08f, 2000.0f, 600.0f, 0.0f);
+    PID_Init(&toe_vel_right_pid, 0.30f, 0.01f, 0.08f, 2000.0f, 600.0f, 0.0f);
 }
 
 void Toe_Enable()

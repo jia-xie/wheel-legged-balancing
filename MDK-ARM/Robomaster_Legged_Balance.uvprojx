@@ -475,9 +475,9 @@
           <GroupName>Components</GroupName>
           <Files>
             <File>
-              <FileName>thigh.c</FileName>
+              <FileName>leg.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Components\Src\thigh.c</FilePath>
+              <FilePath>..\Components\Src\leg.c</FilePath>
             </File>
             <File>
               <FileName>toe.c</FileName>

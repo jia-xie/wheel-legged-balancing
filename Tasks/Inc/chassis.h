@@ -6,7 +6,7 @@
 /* Devices */
 #include "remote.h"
 #include "DM4310.h"
-#include "thigh.h"
+#include "leg.h"
 #include "toe.h"
 #include "robot_param.h"
 #include <stdlib.h>
@@ -28,8 +28,8 @@ typedef struct
     float target_height;
     float target_yaw;
     float target_leg_ang;
-    float target_thigh_1;
-    float target_thigh_2;
+    float target_leg_1;
+    float target_leg_2;
 
     float current_vel;
     float current_turning;
@@ -38,8 +38,8 @@ typedef struct
     float current_raw_yaw;
     float current_yaw;
     float current_leg_ang;
-    float current_thigh_1;
-    float current_thigh_2;
+    float current_leg_1;
+    float current_leg_2;
     
     float last_raw_yaw;
     int16_t turn_count;
