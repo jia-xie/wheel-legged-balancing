@@ -47,6 +47,14 @@ void Leg_Ctrl(float height, float angle)
     Leg_CtrlLeg(target_leg_2, target_leg_3, target_leg_4, target_leg_1);
 }
 
+void Leg_ForwardKinematics(Leg_t *leg, float phi1, float phi4, float phi1_dot, float phi4_dot)
+{
+    leg->phi1 = phi1;
+    leg->phi1_dot = phi1_dot;
+    leg->phi4 = phi4;
+    leg->phi4_dot = phi4_dot;
+}
+
 void Leg_CtrlLeg(float left_front, float right_front, float right_rear, float left_rear)
 {
     float torq_lf = PID_Output(&leg_pos_pid[0], ((left_front + LEFT_FRONT_OFFSET) - leg_motors[0].pos));
