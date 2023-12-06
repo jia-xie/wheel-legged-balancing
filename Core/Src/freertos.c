@@ -215,32 +215,7 @@ void GlobalInit(void const * argument)
 void CAN1_Rx(void const * argument)
 {
   /* USER CODE BEGIN CAN1_Rx */
-  CAN_Rx_Pack_t can_rx_pack;
-  for (;;)
-  {
-    xQueueReceive(can1_rx_queueHandle, &can_rx_pack, portMAX_DELAY);
-    switch (can_rx_pack.rx_header.StdId)
-    {
-    case 0x04:
-      DM4310_DecodeCAN(can_rx_pack.data, &thigh[0]);
-      break;
-    case 0x05:
-      DM4310_DecodeCAN(can_rx_pack.data, &thigh[1]);
-      break;
-    case 0x02:
-      DM4310_DecodeCAN(can_rx_pack.data, &thigh[2]);
-      break;
-    case 0x07:
-      DM4310_DecodeCAN(can_rx_pack.data, &thigh[3]);
-      break;
-    case SINGLE_MOTOR_CTRL_STD + LEFT_TOE_ID:
-      MF_Motor_Decode(can_rx_pack.data, &toe[0]);
-      break;
-    case SINGLE_MOTOR_CTRL_STD + RIGHT_TOE_ID:
-      MF_Motor_Decode(can_rx_pack.data, &toe[1]);
-      break;
-    }
-  }
+  vTaskDelete(NULL);
   /* USER CODE END CAN1_Rx */
 }
 

@@ -289,16 +289,16 @@ void IT_DecodeCAN1()
   switch (rx_header.StdId)
   {
   case 0x04:
-    DM4310_DecodeCAN(data_temp, &thigh[0]);
+    DM4310_DecodeCAN(data_temp, &thigh_motors[0]);
     break;
   case 0x05:
-    DM4310_DecodeCAN(data_temp, &thigh[1]);
+    DM4310_DecodeCAN(data_temp, &thigh_motors[1]);
     break;
   case 0x02:
-    DM4310_DecodeCAN(data_temp, &thigh[2]);
+    DM4310_DecodeCAN(data_temp, &thigh_motors[2]);
     break;
   case 0x07:
-    DM4310_DecodeCAN(data_temp, &thigh[3]);
+    DM4310_DecodeCAN(data_temp, &thigh_motors[3]);
     break;
   
 //  case SINGLE_MOTOR_CTRL_STD + RIGHT_TOE_ID:

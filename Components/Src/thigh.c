@@ -1,6 +1,6 @@
 #include "thigh.h"
 
-DM4310_Info_t thigh[4];
+DM4310_Info_t thigh_motors[4];
 PID_t thigh_pos_pid[4], thigh_vel_pid[4];
 
 void Thigh_Init(void);
@@ -49,10 +49,10 @@ void Thigh_Ctrl(float height, float angle)
 
 void Thigh_CtrlLeg(float left_front, float right_front, float right_rear, float left_rear)
 {
-    float torq_lf = PID_Output(&thigh_pos_pid[0], ((left_front + LEFT_FRONT_OFFSET) - thigh[0].pos));
-    float torq_rf = PID_Output(&thigh_pos_pid[1], ((right_front + RIGHT_FRONT_OFFSET) - thigh[1].pos));
-    float torq_rr = PID_Output(&thigh_pos_pid[2], ((right_rear + RIGHT_REAR_OFFSET) - thigh[2].pos));
-    float torq_lr = PID_Output(&thigh_pos_pid[3], ((left_rear + LEFT_REAR_OFFSET) - thigh[3].pos));
+    float torq_lf = PID_Output(&thigh_pos_pid[0], ((left_front + LEFT_FRONT_OFFSET) - thigh_motors[0].pos));
+    float torq_rf = PID_Output(&thigh_pos_pid[1], ((right_front + RIGHT_FRONT_OFFSET) - thigh_motors[1].pos));
+    float torq_rr = PID_Output(&thigh_pos_pid[2], ((right_rear + RIGHT_REAR_OFFSET) - thigh_motors[2].pos));
+    float torq_lr = PID_Output(&thigh_pos_pid[3], ((left_rear + LEFT_REAR_OFFSET) - thigh_motors[3].pos));
     __MAX_LIMIT(torq_lf, -8, 8);
     __MAX_LIMIT(torq_rf, -8, 8);
     __MAX_LIMIT(torq_rr, -8, 8);

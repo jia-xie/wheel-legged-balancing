@@ -62,10 +62,10 @@ void IMU_Task_Init(IMU_t *imu)
         osDelay(100);
     }
     BMI088_init();
-    while (ist8310_init())
-    {
-        osDelay(100);
-    }
+//    while (ist8310_init())
+//    {
+//        osDelay(100);
+//    }
 
     BMI088_read(imu->bmi088_raw.gyro, imu->bmi088_raw.accel, &imu->bmi088_raw.temp);
 
@@ -152,7 +152,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
             mag_update_flag &= ~(1 << IMU_DR_SHFITS);
             mag_update_flag |= (1 << IMU_SPI_SHFITS);
 
-            ist8310_read_mag(g_imu.ist8310_raw.mag);
+            //ist8310_read_mag(g_imu.ist8310_raw.mag);
         }
     }
     else if (GPIO_Pin == GPIO_PIN_0)

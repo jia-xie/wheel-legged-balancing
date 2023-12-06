@@ -12,9 +12,9 @@ typedef struct
 {
     float phi1;
     float phi4;
-} Thigh_Info_t
+} Thigh_Info_t;
 
-extern DM4310_Info_t thigh[4];
+extern DM4310_Info_t thigh_motors[4];
 
 extern void Thigh_Init(void);
 extern void Thigh_Enable(void);
