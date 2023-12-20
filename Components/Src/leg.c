@@ -1,5 +1,7 @@
 #include "leg.h"
 
+#include "robot_param.h"
+
 DM4310_Info_t leg_motors[4];
 PID_t leg_pos_pid[4], leg_vel_pid[4];
 
@@ -47,12 +49,29 @@ void Leg_Ctrl(float height, float angle)
     Leg_CtrlLeg(target_leg_2, target_leg_3, target_leg_4, target_leg_1);
 }
 
-void Leg_ForwardKinematics(Leg_t *leg, float phi1, float phi4, float phi1_dot, float phi4_dot)
+void Leg_ForwardKinematics(Leg_t *leg, float phi1, float phi2, float phi1_dot, float phi2_dot)
 {
     leg->phi1 = phi1;
     leg->phi1_dot = phi1_dot;
-    leg->phi4 = phi4;
-    leg->phi4_dot = phi4_dot;
+    leg->phi2 = phi2;
+    leg->phi2_dot = phi2_dot;
+
+    float x1 = HALF_THIGH_DISTANCE - THIGH_LENGTH * cos(phi1);
+    float y1 = THIGH_LENGTH * sin(phi1);
+    float x2 = HALF_THIGH_DISTANCE + THIGH_LENGTH * cos(phi2);
+    float y2 = THIGH_LENGTH * sin(phi2);
+
+    float a = x1 - x2;
+    float b = y1 - y2;
+    float c = x1 + x2;
+    float d = y1 + y2;
+    float sigma1 = sqrt(-(4*pow(CALF_LENGTH, 2) + pow(c, 2) + pow(b, 2))/(pow(c, 2) + pow(b, 2)));
+
+
+    leg->xe1 = a / 2 + b * sigma1 / 2;
+    leg->xe2 = a / 2 - b * sigma1 / 2;
+    leg->ye1 = d / 2 + d * sigma1 / 2;
+    leg->ye2 = d / 2 - d * sigma1 / 2;
 }
 
 void Leg_CtrlLeg(float left_front, float right_front, float right_rear, float left_rear)

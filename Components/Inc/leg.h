@@ -1,7 +1,6 @@
 #ifndef THIGH_H
 #define THIGH_H
 
-#include "robot_param.h"
 #include "DM4310.h"
 #include "can.h"
 #include "math.h"
@@ -30,6 +29,8 @@ typedef struct leg
     float phi0_dot;
     float length;
     float length_dot;
+
+    float xe1, xe2, ye1, ye2;
 } Leg_t;
 
 
