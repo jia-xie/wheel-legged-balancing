@@ -56,7 +56,7 @@ void Chassis_Process(Remote_t remote)
     g_chassis.target_vel = remote.controller.left_stick.y / 660.0f;
     
     /* Manipulation - Yaw */
-    g_chassis.target_yaw += (-remote.controller.right_stick.x / 3000.0f);
+    g_chassis.target_yaw += (-remote.controller.right_stick.x / 1200.0f);
 
     /* Estimation */
     g_chassis.current_vel = (toe[0].velocity * TOE_LEFT_DIR * DEG_TO_RAD * TOE_WHEEL_RADIUS) / 2.0f + 
