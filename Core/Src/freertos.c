@@ -157,12 +157,12 @@ void MX_FREERTOS_Init(void) {
   can1_txHandle = osThreadCreate(osThread(can1_tx), NULL);
 
   /* definition and creation of debug_task */
-  osThreadDef(debug_task, Debug_Task, osPriorityLow, 0, 128);
+  osThreadDef(debug_task, Debug_Task, osPriorityLow, 0, 512);
   debug_taskHandle = osThreadCreate(osThread(debug_task), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
 
-  osThreadDef(imu_task, IMU_Task, osPriorityHigh, 0, 256);
+  osThreadDef(imu_task, IMU_Task, osPriorityHigh, 0, 128);
   imu_TaskHandle = osThreadCreate(osThread(imu_task), NULL);
   /* USER CODE END RTOS_THREADS */
 
@@ -223,7 +223,10 @@ __weak void Debug_Task(void const * argument)
   const TickType_t TimeIncrement = pdMS_TO_TICKS(10);
   while (1)
   {
-    printf("pitch=%f\r\n",g_chassis.current_pitch);
+    printf(
+      "force=%f,torq=%f,tor1=%f,torq4=%f,length=%f,theta=%f,phi0_dot=%f\r\n",
+      g_remote.controller.right_stick.y / 660.0f * 10, g_remote.controller.right_stick.x / 660.0f,
+      g_chassis.left_leg.torq1, g_chassis.left_leg.torq4, g_chassis.left_leg.length, g_chassis.left_leg.phi0-PI/2, g_chassis.left_leg.phi0_dot);
     vTaskDelayUntil(&xLastWakeTime, TimeIncrement);
   }
   /* USER CODE END Debug_Task */

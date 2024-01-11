@@ -43,6 +43,9 @@ typedef struct
     
     float last_raw_yaw;
     int16_t turn_count;
+    
+    Leg_t left_leg;
+    Leg_t right_leg;
 } Chassis_t;
 
 extern float speed;
