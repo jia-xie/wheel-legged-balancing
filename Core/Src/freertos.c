@@ -224,9 +224,10 @@ __weak void Debug_Task(void const * argument)
   while (1)
   {
     printf(
-      "force=%f,torq=%f,tor1=%f,torq4=%f,length=%f,theta=%f,phi0_dot=%f\r\n",
-      g_remote.controller.right_stick.y / 660.0f * 10, g_remote.controller.right_stick.x / 660.0f,
-      g_chassis.left_leg.torq1, g_chassis.left_leg.torq4, g_chassis.left_leg.length, g_chassis.left_leg.phi0-PI/2, g_chassis.left_leg.phi0_dot);
+      "x=%f,x_dot=%f,theta=%f,theta_dot=%f,phi=%f,phi_dot=%f\r\n",
+      g_chassis.current_disp,g_chassis.current_vel,
+      g_chassis.current_theta, g_chassis.current_theta_dot,
+      g_chassis.current_pitch, g_chassis.current_pitch_dot);
     vTaskDelayUntil(&xLastWakeTime, TimeIncrement);
   }
   /* USER CODE END Debug_Task */

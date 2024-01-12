@@ -17,6 +17,6 @@ extern MF_MOTOR_INFO_t toe[2];
 
 extern void Toe_Init(void);
 extern void Toe_VelCtrl(int32_t left, int32_t right);
-extern void Toe_TorqCtrl(int32_t left, int32_t right);
+extern void Toe_TorqCtrl(float left, float right);
 
 #endif

@@ -24,12 +24,13 @@
 #define THIGH_LENGTH 0.14f
 #define CALF_LENGTH 0.24f
 #define TOE_WHEEL_RADIUS 0.06f // meter
+#define ROBOT_WEIGHT 31.0f // Newton
 
 /* Limit */
 #define THIGH_ANG_RANGE 45.0f //degree
 
 /* Control */
-#define INIT_CHASSIS_HEIGHT 0.16//0.144f
+#define INIT_CHASSIS_HEIGHT 0.16f //0.144f
 #define INIT_CHASSIS_ANGLE 90.0f
 
 #endif

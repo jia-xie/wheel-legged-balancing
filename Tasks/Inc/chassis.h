@@ -26,26 +26,18 @@ typedef struct
 
     float target_vel;
     float target_height;
-    float target_yaw;
-    float target_leg_ang;
-    float target_leg_1;
-    float target_leg_2;
 
+    float current_disp;
     float current_vel;
-    float current_turning;
-    float current_height;
+    float current_theta;
+    float current_theta_dot;
+    float last_theta;
     float current_pitch;
-    float current_raw_yaw;
-    float current_yaw;
-    float current_leg_ang;
-    float current_leg_1;
-    float current_leg_2;
-    
-    float last_raw_yaw;
-    int16_t turn_count;
-    
+    float current_pitch_dot;
+
     Leg_t left_leg;
     Leg_t right_leg;
+    float current_height;
 } Chassis_t;
 
 extern float speed;

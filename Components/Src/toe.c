@@ -8,7 +8,7 @@ PID_t leg_angle_pid, toe_state_pid;
 void Toe_Init(void);
 void Toe_Enable(void);
 void Toe_Disable(void);
-void Toe_Ctrl(int32_t left, int32_t right);
+void Toe_Ctrl(float left, float right);
 
 void Toe_Init()
 {
@@ -47,10 +47,14 @@ void Toe_VelCtrl(int32_t left, int32_t right)
     Toe_TorqCtrl(torq_l, torq_r);
 }
 
-void Toe_TorqCtrl(int32_t left, int32_t right)
+void Toe_TorqCtrl(float left, float right)
 {
-    __MAX_LIMIT(left, -2000, 2000);
-    __MAX_LIMIT(right, -2000, 2000);
-    MF_Motor_TorqueCtrl(&hcan2, LEFT_TOE_ID, TOE_LEFT_DIR * left);
-    MF_Motor_TorqueCtrl(&hcan2, RIGHT_TOE_ID, TOE_RIGHT_DIR * right);
+    __MAX_LIMIT(left, -0.3f, 0.3f);
+    __MAX_LIMIT(right, -0.3f, 0.3f);
+    int16_t left_int = (left / MF4310_TORQ_CONST) * CURRENT_TO_CTRL_INT;
+    int16_t right_int = (right / MF4310_TORQ_CONST) * CURRENT_TO_CTRL_INT;
+    __MAX_LIMIT(left_int, -2000, 2000);
+    __MAX_LIMIT(right_int, -2000, 2000);
+    MF_Motor_TorqueCtrl(&hcan2, LEFT_TOE_ID, TOE_LEFT_DIR * left_int);
+    MF_Motor_TorqueCtrl(&hcan2, RIGHT_TOE_ID, TOE_RIGHT_DIR * right_int);
 }
