@@ -34,6 +34,8 @@ typedef struct leg
     float xe1, xe2, ye1, ye2;
     float torq1, torq4;
 
+    float current_disp, current_vel, current_theta, current_theta_dot, last_theta;
+    float target_leg_virtual_torq, target_wheel_torq;
     uint32_t current_tick, last_tick;
 } Leg_t;
 
@@ -44,7 +46,7 @@ extern void Leg_Init(void);
 extern void Leg_Enable(void);
 extern void Leg_Disable(void);
 extern void Leg_ForwardKinematics(Leg_t *leg, float phi1, float phi2, float phi1_dot, float phi2_dot);
-void Leg_CtrlTorq(float lf, float rf, float rr, float lr);
+void Leg_TorqCtrl(float lf, float rf, float rr, float lr);
 extern void Leg_CtrlLeg(float left_front, float right_front, float right_rear, float left_rear);
 extern void Leg_InverseKinematics(float height, float leg_angle, float *leg_1, float *leg_2);
 extern void Leg_VMC(Leg_t *leg, float force, float torq);

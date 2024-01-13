@@ -1,74 +1,108 @@
 #include "chassis.h"
 
-#define K11 (5.7735f)
-#define K12 (5.8364f)
+#define K11 (1.9922f)
+#define K12 (2.7070f)
 #define K13 (-12.5286f)
-#define K14 (-1.8065f)
-#define K15 (-0.0034f)
-#define K16 (-0.0011f)
-#define K21 (-0.0373f)
-#define K22 (-0.0371f)
-#define K23 (0.0748f)
-#define K24 (0.0111f)
-#define K25 (-6.3245f)
-#define K26 (-2.0000f)
-
+#define K14 (-0.7812f)
+#define K15 (-1.6701f)
+#define K16 (-0.2316f)
+#define K21 (-0.1765f)
+#define K22 (-0.2402f)
+#define K23 (1.0978f)
+#define K24 (0.0975f)
+#define K25 (-2.3353f)
+#define K26 (-0.1242f)
+              
 Chassis_t g_chassis;
-
-PID_t g_left_leg_length_pid, g_right_leg_length_pid;
-
+uint8_t enabled_count = 0;
 void Chassis_Init()
 {
     Toe_Init();
     Leg_Init();
 
-    PID_Init(&g_left_leg_length_pid, 3, 0, 0, 10, 0, 0);
-    PID_Init(&g_right_leg_length_pid, 3, 0, 0, 10, 0, 0);
+    PID_Init(&g_chassis.left_leg_length_pid, 200, 3, 600, 30, 0, 0);
+    PID_Init(&g_chassis.right_leg_length_pid, 200, 3, 600, 30, 0, 0);
     
 }
-void Chassis_Process(Remote_t remote)
+void Chassis_Process(Remote_t *remote)
 {
     
     /* Manipulation - Enabled */
-    if (g_remote.controller.right_switch == MID) g_chassis.enabled = 1;
-    else if (g_remote.controller.right_switch == DOWN) g_chassis.enabled = 0;
+    if (remote->controller.right_switch == MID) g_chassis.enabled = 1;
+    else if (remote->controller.right_switch == DOWN) g_chassis.enabled = 0;
     
     Leg_ForwardKinematics(&g_chassis.left_leg, leg_motors[3].pos - LEFT_REAR_OFFSET, leg_motors[0].pos - LEFT_FRONT_OFFSET, leg_motors[3].vel, leg_motors[0].vel);
     Leg_ForwardKinematics(&g_chassis.right_leg, leg_motors[1].pos - RIGHT_FRONT_OFFSET, leg_motors[2].pos - RIGHT_REAR_OFFSET, leg_motors[1].vel, leg_motors[2].vel);
 
     /* Estimation */
-    g_chassis.current_disp = (toe[0].total_angle * TOE_LEFT_DIR * DEG_TO_RAD * TOE_WHEEL_RADIUS) / 2.0f + 
-                    (toe[1].total_angle * TOE_RIGHT_DIR * DEG_TO_RAD * TOE_WHEEL_RADIUS) / 2.0f;
-    g_chassis.current_vel = (toe[0].velocity * TOE_LEFT_DIR * DEG_TO_RAD * TOE_WHEEL_RADIUS) / 2.0f + 
-                    (toe[1].velocity * TOE_RIGHT_DIR * DEG_TO_RAD * TOE_WHEEL_RADIUS) / 2.0f;
+    g_chassis.left_leg.current_disp = (g_toe[0].total_angle * TOE_LEFT_DIR * DEG_TO_RAD * TOE_WHEEL_RADIUS);
+    g_chassis.right_leg.current_disp = -(g_toe[1].total_angle * TOE_RIGHT_DIR * DEG_TO_RAD * TOE_WHEEL_RADIUS);
+    g_chassis.left_leg.current_vel = (g_toe[0].velocity * TOE_LEFT_DIR * DEG_TO_RAD * TOE_WHEEL_RADIUS);
+    g_chassis.right_leg.current_vel = -(g_toe[1].velocity * TOE_RIGHT_DIR * DEG_TO_RAD * TOE_WHEEL_RADIUS);
+    
     g_chassis.current_pitch = g_imu.rad.pitch;
     g_chassis.current_pitch_dot = g_imu.bmi088_raw.gyro[1];
-    g_chassis.target_height = INIT_CHASSIS_HEIGHT;
+    g_chassis.target_height = INIT_CHASSIS_HEIGHT + remote->controller.right_stick.y / 660.0f * 0.1f;
 
-    g_chassis.last_theta = g_chassis.current_theta;
-    g_chassis.current_theta = g_chassis.current_pitch + (g_chassis.left_leg.phi0 - g_chassis.right_leg.phi0) / 2.0f;
-    g_chassis.current_theta_dot = (g_chassis.current_theta - g_chassis.last_theta) / 0.004f;
+    g_chassis.left_leg.last_theta = g_chassis.left_leg.current_theta;
+    g_chassis.left_leg.current_theta = g_chassis.current_pitch + g_chassis.left_leg.phi0 - PI / 2.0f;
+    g_chassis.left_leg.current_theta_dot = (g_chassis.left_leg.current_theta - g_chassis.left_leg.last_theta) / 0.004f;
 
+    g_chassis.right_leg.last_theta = g_chassis.right_leg.current_theta;
+    g_chassis.right_leg.current_theta = g_chassis.current_pitch - (g_chassis.right_leg.phi0 - PI/2.0f);
+    g_chassis.right_leg.current_theta_dot = (g_chassis.right_leg.current_theta - g_chassis.right_leg.last_theta) / 0.004f;
 }
 
 void Chassis_Enable()
 {
-    Leg_Enable();
+    if (enabled_count < 50) {
+        Leg_Enable();
+    }
     Toe_Enable();
 }
 
 void Chassis_Disable()
 {
+    enabled_count = 0;
     Leg_Disable();
-    Toe_Disable();
+    //Toe_Disable();
 }
 
-void Chassis_LegControl(float height, Leg_t *left, Leg_t *right, PID_t *left_leg_length_pid, PID_t *right_leg_length_pid)
+void Chassis_LQRCtrl(Chassis_t *chassis)
 {
-    Leg_VMC(left, PID_Output(left_leg_length_pid, height - left->length) + ROBOT_WEIGHT / 2, 0);
-    Leg_VMC(right, PID_Output(right_leg_length_pid, height - left->length) + ROBOT_WEIGHT / 2, 0);
-    Leg_CtrlTorq(left->torq4, right->torq1, right->torq4, left->torq1);
+    // chassis->left_leg.target_leg_virtual_torq = K11 * chassis->left_leg.current_disp + K12 * chassis->left_leg.current_vel
+    //                                     + K13 * chassis->left_leg.current_theta + K14 * chassis->left_leg.current_theta_dot 
+    //                                     + K15 * chassis->current_pitch + K16 * chassis->current_pitch_dot;
+    
+    // chassis->left_leg.target_leg_virtual_torq = K11 * chassis->right_leg.current_disp + K12 * chassis->right_leg.current_vel
+    //                                     + K13 * chassis->right_leg.current_theta + K14 * chassis->right_leg.current_theta_dot 
+    //                                     + K15 * chassis->current_pitch + K16 * chassis->current_pitch_dot;
+    // __MAX_LIMIT(chassis->left_leg.target_leg_virtual_torq, -1, 1);
+    // __MAX_LIMIT(chassis->right_leg.target_leg_virtual_torq, -1, 1);
+
+    // chassis->left_leg.target_wheel_torq = K21 * chassis->left_leg.current_disp + K22 * chassis->left_leg.current_vel
+    //                                     + K23 * chassis->left_leg.current_theta + K24 * chassis->left_leg.current_theta_dot 
+    //                                     + K25 * chassis->current_pitch + K26 * chassis->current_pitch_dot;
+    // chassis->right_leg.target_wheel_torq = K21 * chassis->right_leg.current_disp + K22 * chassis->right_leg.current_vel
+    //                                     + K23 * chassis->right_leg.current_theta + K24 * chassis->right_leg.current_theta_dot 
+    //                                     + K25 * chassis->current_pitch + K26 * chassis->current_pitch_dot;
+    
+    chassis->target_left_leg_virtual_force = (PID_Output(&chassis->left_leg_length_pid, chassis->target_height - chassis->left_leg.length));// + ROBOT_WEIGHT / 2);
+    chassis->target_right_leg_virtual_force = PID_Output(&chassis->right_leg_length_pid, chassis->target_height - chassis->right_leg.length);//+ ROBOT_WEIGHT / 2;
+    
+    Leg_VMC(&chassis->left_leg, chassis->target_left_leg_virtual_force, chassis->left_leg.target_leg_virtual_torq);
+    Leg_VMC(&chassis->right_leg, chassis->target_right_leg_virtual_force, -0 * chassis->right_leg.target_wheel_torq);
 }
+
+void Chassis_Send(Chassis_t *chassis)
+{
+    //Leg_CtrlLeg(0, 0, 0, PI);
+    Leg_TorqCtrl(chassis->left_leg.torq4, chassis->right_leg.torq1, chassis->right_leg.torq4, chassis->left_leg.torq1);
+    Toe_TorqCtrl(chassis->target_wheel_torq, chassis->target_wheel_torq);
+    //Toe_VelCtrl(0, 0);
+    //Toe_PosCtrl(0, 0);
+}
+
 void Chassis_Ctrl(void const *argument)
 {
     portTickType xLastWakeTime;
@@ -77,16 +111,17 @@ void Chassis_Ctrl(void const *argument)
     Chassis_Init();
     while (1)
     {
-        Chassis_Process(g_remote);
+        Chassis_Process(&g_remote);
         if (g_chassis.enabled) 
-        {
+        {    
             Chassis_Enable();
-            Toe_TorqCtrl(0, 0);
-            //Chassis_LegControl(g_chassis.target_height, &g_chassis.left_leg, &g_chassis.right_leg, &g_left_leg_length_pid, &g_right_leg_length_pid);
-            
+            Chassis_LQRCtrl(&g_chassis);
+            Chassis_Send(&g_chassis);
+            //Toe_TorqCtrl(0.05f, 0.05f);
         }
         else 
             Chassis_Disable();
+            Toe_TorqCtrl(0.0f, 0.0f);
         
         vTaskDelayUntil(&xLastWakeTime, TimeIncrement);
     }

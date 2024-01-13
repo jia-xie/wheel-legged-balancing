@@ -317,10 +317,10 @@ void IT_DecodeCAN2()
       switch (rx_header.StdId)
       {
         case SINGLE_MOTOR_CTRL_STD + LEFT_TOE_ID:
-            MF_Motor_Decode(data_temp, &toe[0]);
+            MF_Motor_Decode(data_temp, &g_toe[0]);
             break;
         case SINGLE_MOTOR_CTRL_STD + RIGHT_TOE_ID:
-            MF_Motor_Decode(data_temp, &toe[1]);
+            MF_Motor_Decode(data_temp, &g_toe[1]);
             break;
       }
   }

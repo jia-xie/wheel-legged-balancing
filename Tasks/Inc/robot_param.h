@@ -24,7 +24,7 @@
 #define THIGH_LENGTH 0.14f
 #define CALF_LENGTH 0.24f
 #define TOE_WHEEL_RADIUS 0.06f // meter
-#define ROBOT_WEIGHT 31.0f // Newton
+#define ROBOT_WEIGHT 35.0f // Newton
 
 /* Limit */
 #define THIGH_ANG_RANGE 45.0f //degree

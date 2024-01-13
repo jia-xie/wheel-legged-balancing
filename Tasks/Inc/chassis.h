@@ -38,6 +38,15 @@ typedef struct
     Leg_t left_leg;
     Leg_t right_leg;
     float current_height;
+
+    PID_t left_leg_length_pid;
+    PID_t right_leg_length_pid;
+
+    float target_leg_virtual_torq;
+    float target_wheel_torq;
+
+    float target_left_leg_virtual_force;
+    float target_right_leg_virtual_force;
 } Chassis_t;
 
 extern float speed;

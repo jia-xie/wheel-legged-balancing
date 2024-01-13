@@ -56,6 +56,7 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
 osThreadId imu_TaskHandle;
+extern float torq1, torq4;
 /* USER CODE END Variables */
 osThreadId global_init_tasHandle;
 osThreadId chassis_taskHandle;
@@ -149,7 +150,7 @@ void MX_FREERTOS_Init(void) {
   global_init_tasHandle = osThreadCreate(osThread(global_init_tas), NULL);
 
   /* definition and creation of chassis_task */
-  osThreadDef(chassis_task, Chassis_Ctrl, osPriorityNormal, 0, 512);
+  osThreadDef(chassis_task, Chassis_Ctrl, osPriorityNormal, 0, 4096);
   chassis_taskHandle = osThreadCreate(osThread(chassis_task), NULL);
 
   /* definition and creation of can1_tx */
@@ -157,7 +158,7 @@ void MX_FREERTOS_Init(void) {
   can1_txHandle = osThreadCreate(osThread(can1_tx), NULL);
 
   /* definition and creation of debug_task */
-  osThreadDef(debug_task, Debug_Task, osPriorityLow, 0, 512);
+  osThreadDef(debug_task, Debug_Task, osPriorityLow, 0, 256);
   debug_taskHandle = osThreadCreate(osThread(debug_task), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
@@ -224,10 +225,11 @@ __weak void Debug_Task(void const * argument)
   while (1)
   {
     printf(
-      "x=%f,x_dot=%f,theta=%f,theta_dot=%f,phi=%f,phi_dot=%f\r\n",
-      g_chassis.current_disp,g_chassis.current_vel,
-      g_chassis.current_theta, g_chassis.current_theta_dot,
-      g_chassis.current_pitch, g_chassis.current_pitch_dot);
+      "x=%f,x_dot=%f,theta=%f,theta_dot=%f,phi=%f,phi_dot=%f,left1=%f,left_2=%f\r\n",
+      g_chassis.right_leg.current_disp,g_chassis.right_leg.current_vel,
+      g_chassis.right_leg.current_theta, g_chassis.right_leg.current_theta_dot,
+      g_chassis.current_pitch, g_chassis.current_pitch_dot,
+      torq1,torq4);
     vTaskDelayUntil(&xLastWakeTime, TimeIncrement);
   }
   /* USER CODE END Debug_Task */
