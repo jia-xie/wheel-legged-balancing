@@ -15,15 +15,28 @@
               
 Chassis_t g_chassis;
 uint8_t enabled_count = 0;
+PID_t chassis_toe_angle_pid;
+PID_t chassis_toe_vel_pid;
+PID_t chassis_left_leg_angle;
+PID_t chassis_right_leg_angle;
+float balance_ang = 0;
+
 void Chassis_Init()
 {
     Toe_Init();
     Leg_Init();
 
-    PID_Init(&g_chassis.left_leg_length_pid, 200, 3, 600, 30, 0, 0);
-    PID_Init(&g_chassis.right_leg_length_pid, 200, 3, 600, 30, 0, 0);
-    
+    PID_Init(&g_chassis.left_leg_length_pid, 200, 6, 900, 30, 0, 0);
+    PID_Init(&g_chassis.right_leg_length_pid, 200, 6, 900, 30, 0, 0);
+
+    PID_Init(&chassis_toe_vel_pid, 1500.0f, .0f, 1000.0f, 14000.0f, 14000.f, 0.0f);
+    PID_Init(&chassis_toe_angle_pid, 120.0f, 0.0f, 6000.0f, 14000.0f, 14000.0f, 0.0f);
+
+    PID_Init(&chassis_left_leg_angle, 6.0f, 0.0f, 50.0f, 2.0f, 2.0f, 0.0f);
+    PID_Init(&chassis_right_leg_angle, 6.0f, 0.0f, 50.0f, 2.0f, 2.0f, 0.0f);
+
 }
+
 void Chassis_Process(Remote_t *remote)
 {
     
@@ -52,7 +65,24 @@ void Chassis_Process(Remote_t *remote)
     g_chassis.right_leg.current_theta = g_chassis.current_pitch - (g_chassis.right_leg.phi0 - PI/2.0f);
     g_chassis.right_leg.current_theta_dot = (g_chassis.right_leg.current_theta - g_chassis.right_leg.last_theta) / 0.004f;
 }
+void Chassis_ToeControl()
+{
+    float toe_vel_output = PID_Output(&chassis_toe_vel_pid, g_chassis.current_vel - g_chassis.target_vel);
+    float toe_ang_output = -PID_Output(&chassis_toe_angle_pid, balance_ang - g_chassis.current_pitch);
 
+    float toe_left_target_vel = toe_ang_output + toe_vel_output;
+    float toe_right_target_vel = toe_ang_output + toe_vel_output;
+    __MAX_LIMIT(toe_left_target_vel, -14000, 14000);
+    __MAX_LIMIT(toe_right_target_vel, -14000, 14000);
+    if (g_remote.controller.left_switch == MID) 
+        Toe_VelCtrl(toe_left_target_vel, toe_right_target_vel);
+    else
+    {
+        Toe_TorqCtrl(0,0);
+        PID_Reset(&chassis_toe_angle_pid);
+        PID_Reset(&chassis_toe_vel_pid);
+    }
+}
 void Chassis_Enable()
 {
     if (enabled_count < 50) {
@@ -86,12 +116,14 @@ void Chassis_LQRCtrl(Chassis_t *chassis)
     // chassis->right_leg.target_wheel_torq = K21 * chassis->right_leg.current_disp + K22 * chassis->right_leg.current_vel
     //                                     + K23 * chassis->right_leg.current_theta + K24 * chassis->right_leg.current_theta_dot 
     //                                     + K25 * chassis->current_pitch + K26 * chassis->current_pitch_dot;
-    
+    //Chassis_ToeControl();
     chassis->target_left_leg_virtual_force = (PID_Output(&chassis->left_leg_length_pid, chassis->target_height - chassis->left_leg.length));// + ROBOT_WEIGHT / 2);
     chassis->target_right_leg_virtual_force = PID_Output(&chassis->right_leg_length_pid, chassis->target_height - chassis->right_leg.length);//+ ROBOT_WEIGHT / 2;
-    
-    Leg_VMC(&chassis->left_leg, chassis->target_left_leg_virtual_force, chassis->left_leg.target_leg_virtual_torq);
-    Leg_VMC(&chassis->right_leg, chassis->target_right_leg_virtual_force, -0 * chassis->right_leg.target_wheel_torq);
+    chassis->left_leg.target_leg_virtual_torq = PID_Output(&chassis_left_leg_angle, PI / 2 - chassis->left_leg.phi0);
+    chassis->right_leg.target_leg_virtual_torq = PID_Output(&chassis_right_leg_angle, PI / 2 - chassis->right_leg.phi0);
+
+    Leg_VMC(&chassis->left_leg, 0*chassis->target_left_leg_virtual_force, 0*chassis->left_leg.target_leg_virtual_torq);
+    Leg_VMC(&chassis->right_leg, chassis->target_right_leg_virtual_force, chassis->right_leg.target_leg_virtual_torq);
 }
 
 void Chassis_Send(Chassis_t *chassis)
